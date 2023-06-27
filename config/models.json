@@ -78,5 +78,35 @@
         "description": "Bitmain Antminer T17 Bitcoin Miner 40 TH/s",
         "model_module": "antminermonitor.blueprints.asicminer.asic_antminer",
         "model_classname": "ASIC_ANTMINER"
+    },
+    "Antminer T17+": {
+        "id": "Antminer T17+",
+        "model": "T17+",
+        "chips": "30,30,30",
+        "temp_keys": "temp2_",
+        "unit": "GH/s",
+        "description": "Bitmain Antminer T17+ Bitcoin Miner 54 TH/s",
+        "model_module": "antminermonitor.blueprints.asicminer.asic_antminer",
+        "model_classname": "ASIC_ANTMINER"
+    },
+    "Antminer T19": {
+        "id": "Antminer T19",
+        "model": "T19",
+        "chips": "30,30,30",
+        "temp_keys": "temp2_",
+        "unit": "GH/s",
+        "description": "Bitmain Antminer T19 Bitcoin Miner 40 TH/s",
+        "model_module": "antminermonitor.blueprints.asicminer.asic_antminer",
+        "model_classname": "ASIC_ANTMINER"
+    },
+    "Antminer S19": {
+        "id": "Antminer S19",
+        "model": "S19",
+        "chips": "30,30,30",
+        "temp_keys": "temp2_",
+        "unit": "GH/s",
+        "description": "Bitmain Antminer S19 Bitcoin Miner 40 TH/s",
+        "model_module": "antminermonitor.blueprints.asicminer.asic_antminer",
+        "model_classname": "ASIC_ANTMINER"
     }
 }

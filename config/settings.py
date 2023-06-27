@@ -16,7 +16,7 @@ import multiprocessing as m
 
 NUM_THREADS = m.cpu_count() - 1 or 1
 
-__VERSION__ = '0.5.0'
+__VERSION__ = '0.6.0'
 
 DEBUG = True
 LOG_LEVEL = 'DEBUG'  # CRITICAL / ERROR / WARNING / INFO / DEBUG

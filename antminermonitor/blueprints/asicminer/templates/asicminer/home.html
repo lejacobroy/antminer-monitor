@@ -134,6 +134,7 @@ cryptocurrency, crypto, miner, mine, mining
             <th>IP Address</th>
             <th>Worker</th>
             <th>Model</th>
+            <th>OS</th>
             <th>Remarks</th>
             <th title="'O' means OK">Chips (Os)</th>
             <th title="'X' means defective">Chips (Xs)</th>
@@ -152,6 +153,7 @@ cryptocurrency, crypto, miner, mine, mining
                 <td><a target="_blank" href="http://{{ active_miner.ip }}/cgi-bin/minerStatus.cgi">{{ active_miner.ip }}</a></td>
                 <td>{{ active_miner.worker }}</td>
                 <td title="{{ models.get(active_miner.model_id).get('description') }}">{{ active_miner.model_id }}</td>
+                <td>{{ active_miner.model }}</td>
                 <td>{{ active_miner.remarks }}</td>
                 <td>{{ active_miner.chips['Os'] }}</td>
                 <td>{{ active_miner.chips['Xs'] }}</td>

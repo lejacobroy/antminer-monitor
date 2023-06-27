@@ -37,9 +37,10 @@ def create_db():
         print("[INFO] Database already exists.")
     else:
         print("[INFO] Database successfully created.")
+        create_admin
 
 
-@cli.command()
+#@cli.command()
 def create_admin():
     """
         Create admin user if not exist with default password 'antminermonitor'

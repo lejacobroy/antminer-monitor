@@ -22,6 +22,7 @@ TODO:
 - simple dashboard with graphs (5min our 1hr logs)
 - Add support for newer machines (x19)
 - support BraiinsOS
+- Auto-select the model when adding miners
 
 ## Screenshot
 
@@ -34,18 +35,11 @@ TODO:
 ## Fresh Installation
 
 1. Install requirements (Mac users don't forget `sudo`)
-
+2. create the empty database
+3. create the admin user
 ```sh
 pip3 install -r requirements.txt
-python3 manage.py create-db
-```
-
-## Login Page
-
-  1. Create admin user
-
-```sh
-python3 manage.py create-admin
+python3 app.py create-db
 ```
 
 Default creadentials are `username: admin` - `password: antminermonitor`. You can change the password from the settings menu.
@@ -55,7 +49,7 @@ Default creadentials are `username: admin` - `password: antminermonitor`. You ca
 (Mac users don't forget `sudo`)
 
 ```sh
-python3 manage.py run -h 0.0.0.0 -p 8000
+python3 app.py run -h 0.0.0.0 -p 8000
 ```
 
 Fire up a browser and point it to `http://localhost:8000` if you are running the app on the same machine.

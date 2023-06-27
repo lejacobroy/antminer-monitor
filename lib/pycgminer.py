@@ -115,11 +115,13 @@ def get_stats(ip):
     output.update({"IP": ip})
     return dict(output)
 
+def get_chains(ip):
+    cgminer = CgminerAPI(host=ip)
+    output = cgminer.devdetails()
+    output.update({"IP": ip})
+    return dict(output)
 
 if __name__ == '__main__':
-    L3 = CgminerAPI(host='192.168.1.103')
-    print(L3.stats())
-    S7 = CgminerAPI(host='192.168.1.107')
-    print(S7.stats())
-    S9 = CgminerAPI(host='192.168.1.109')
-    print(S9.stats())
+    S9 = CgminerAPI(host='10.66.10.63')
+    print(S9.lcd())
+

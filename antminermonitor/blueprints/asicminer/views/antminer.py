@@ -214,10 +214,10 @@ def miner_discovery():
 
         # miner is not supported by the software
         current_app.logger.error(
-            f"Miner with IP {ip} is currently not supported by AntminerMonitor"
+            f"Miner ({miner_model_id}) with IP {ip} is currently not supported by AntminerMonitor"
         )
         flash(
-            f"Miner with IP {ip} is currently not supported by AntminerMonitor",
+            f"Miner ({miner_model_id}) with IP {ip} is currently not supported by AntminerMonitor",
             "info")
 
         start_ip += 1
