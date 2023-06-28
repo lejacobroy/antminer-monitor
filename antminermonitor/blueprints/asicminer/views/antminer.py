@@ -3,6 +3,8 @@ import re
 import sys
 import time
 from datetime import timedelta
+import urllib.request
+import gzip
 
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, url_for)
@@ -125,29 +127,44 @@ def miners():
 @login_required
 def add_miner():
     miner_ip = request.form['ip']
-    miner_model_id = request.form.get('model_id')
+    #miner_model_id = request.form.get('model_id')
     miner_remarks = request.form['remarks']
 
     # exists = Miner.query.filter_by(ip="").first()
     # if exists:
     #    return "IP Address already added"
 
-    add_miner(miner_ip, miner_model_id, miner_remarks)
+    add_miner(miner_ip, miner_remarks)
 
     return redirect(url_for('antminer.miners'))
 
 
-def add_miner(miner_ip, miner_model_id, miner_remarks):
+def add_miner(miner_ip, miner_remarks):
+    #supported_miner = ""
+    miner_model_id = ""
     try:
-        miner = Miner(ip=miner_ip,
-                      model_id=miner_model_id,
-                      remarks=miner_remarks)
-        db_session.add(miner)
-        db_session.commit()
-        current_app.logger.info(
-            f"Miner with IP Address {miner.ip} added successfully")
-        flash(f"Miner with IP Address {miner.ip} added successfully",
-              "success")
+        # check if is pycgminer
+        miner_model_id = is_pycgminer(miner_ip)
+        print(miner_model_id)
+        if miner_model_id:
+            if is_supported(miner_model_id):
+                miner = Miner(ip=miner_ip,
+                            model_id=miner_model_id,
+                            remarks=miner_remarks)
+                db_session.add(miner)
+                db_session.commit()
+                current_app.logger.info(
+                    f"Miner with IP Address {miner.ip} added successfully")
+                flash(f"Miner with IP Address {miner.ip} added successfully",
+                    "success")
+            else:
+                # miner is not supported by the software
+                current_app.logger.error(
+                    f"Miner ({miner_model_id}) with IP {miner_ip} is currently not supported by AntminerMonitor"
+                )
+                flash(
+                    f"Miner ({miner_model_id}) with IP {miner_ip} is currently not supported by AntminerMonitor",
+                    "info")
     except IntegrityError:
         db_session.rollback()
         current_app.logger.info(f"IP Address {miner.ip} already added")
@@ -161,6 +178,7 @@ def miner_discovery():
     subnet = request.form.get('subnet') + "."
     start_ip = request.form.get('start_ip', type=int)
     end_ip = request.form.get('end_ip', type=int)
+    miner_remarks = request.form['remarks']
 
     if end_ip < start_ip:
         current_app.logger.error(
@@ -171,10 +189,31 @@ def miner_discovery():
             "error")
         return redirect(url_for('miners'))
 
-    supported_miner = ""
+    #supported_miner = ""
     miner_model_id = ""
 
-    def is_pycgminer(ip):
+    while start_ip <= end_ip:
+        ip = subnet + str(start_ip)
+        current_app.logger.info("Querying IP %s" % ip)
+
+        add_miner(ip, miner_model_id, miner_remarks)
+
+        start_ip += 1
+
+    return redirect(url_for('antminer.miners'))
+
+
+def is_supported(model_id):
+        #supported_miner = ""
+        # check if the miner is supported by the software
+        try:
+            supported_miner = [id for id in MODELS.keys() if id == model_id][0]
+            #add_miner(ip, supported_miner, "")
+            return True
+        except IndexError as i:
+            return False
+        
+def is_pycgminer(ip):
         from lib.pycgminer import get_stats
         try:
             miner_stats = get_stats(ip)
@@ -187,42 +226,14 @@ def miner_discovery():
         try:
             return miner_stats['STATS'][0]['Type']
         except Exception as c:
+            # we probably have a BOSMiner, let's query the prometheus endpoints
+            f = urllib.request.urlopen(str("http://"+ip+":8081/metrics"))
+            res = gzip.decompress(f.read())
+            result = re.search('model="(.*)",os_version',res.decode('utf-8'))
+            if result.group(1):
+                return result.group(1)
             return False
 
-    def add_if_supported(ip, model_id):
-        # check if the miner is supported by the software
-        try:
-            supported_miner = [id for id in MODELS.keys() if id == model_id][0]
-            add_miner(ip, supported_miner, "")
-            return True
-        except IndexError as i:
-            return False
-
-    while start_ip <= end_ip:
-        ip = subnet + str(start_ip)
-        current_app.logger.info("Querying IP %s" % ip)
-
-        # check if is pycgminer
-        miner_model_id = is_pycgminer(ip)
-        if miner_model_id:
-            is_supported = add_if_supported(ip, miner_model_id)
-            if is_supported:
-                start_ip += 1
-                # TODO
-                # log message of added supported miner model and IP
-                continue
-
-        # miner is not supported by the software
-        current_app.logger.error(
-            f"Miner ({miner_model_id}) with IP {ip} is currently not supported by AntminerMonitor"
-        )
-        flash(
-            f"Miner ({miner_model_id}) with IP {ip} is currently not supported by AntminerMonitor",
-            "info")
-
-        start_ip += 1
-
-    return redirect(url_for('antminer.miners'))
 
 
 @antminer.route('/delete/<id>')

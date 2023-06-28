@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from antminermonitor.blueprints.asicminer.base_miner import BaseMiner
 from config.settings import MODELS
-from lib.pycgminer import get_pools, get_stats, get_summary, get_chains
+from lib.pycgminer import get_pools, get_stats, get_summary, get_chains, get_config, get_fans, get_temps
 from lib.util_hashrate import update_unit_and_value
 
 
@@ -16,6 +16,7 @@ class ASIC_ANTMINER(BaseMiner):
         miner_stats = get_stats(self.ip)
         #print(miner_stats)
         # if miner not accessible
+        
         if miner_stats['STATUS'][0]['STATUS'] == 'error':
             self.is_inactive = True
             self.errors.append(miner_stats['STATUS'][0]['description'])
@@ -37,8 +38,15 @@ class ASIC_ANTMINER(BaseMiner):
             except Exception as e:
                 self.worker = ""
 
+            try:
+                self.os = get_config(self.ip)['CONFIG'][0]['OS'] #'Braiins OS'
+            except Exception as k:
+                self.os = ''
+            
+            miner_summary = get_summary(self.ip)
+
             # Get miner's ASIC chips
-            if miner_stats['STATUS'][0]['Msg'] == 'BOSer stats':
+            if self.os == 'Braiins OS':
                 # we have a BOS miner, switching to a different info retrival
                 miner_chains = get_chains(self.ip)
                 # Get total number of chips according to miner's model
@@ -62,6 +70,22 @@ class ASIC_ANTMINER(BaseMiner):
                     '-': 0,
                     'total': total_chips
                 })
+                # Get fan speeds
+                fans = get_fans(self.ip)
+                fan_speeds = [] 
+                for f in fans['FANS']:
+                    fan_speeds.append(f['RPM'])
+                self.fan_speeds = fan_speeds
+
+                # Get the temperatures of the miner according to miner's model
+                temps = get_temps(self.ip)
+                temperatures = []
+                for t in temps['TEMPS']:
+                    temperatures.append(t['Chip'])
+                self.temperatures = temperatures
+
+                # Get uptime
+                self.uptime = str(timedelta(seconds=miner_summary['SUMMARY'][0]['Elapsed']))
 
             else:
                 asic_chains = [
@@ -97,35 +121,34 @@ class ASIC_ANTMINER(BaseMiner):
                     '-': _dash_chips,
                     'total': total_chips
                 })
-
-            # Get the temperatures of the miner according to miner's model
-            self.temperatures = [
-                int(miner_stats['STATS'][1][temp])
-                for temp in sorted(miner_stats['STATS'][1].keys(),
-                                key=lambda x: str(x))
-                if re.search(
-                    MODELS.get(self.model_id).get('temp_keys') + '[0-9]', temp)
-                if miner_stats['STATS'][1][temp] != 0
-            ]
-
-            # Get fan speeds
-            self.fan_speeds = [
-                miner_stats['STATS'][1][fan]
-                for fan in sorted(miner_stats['STATS'][1].keys(),
-                                key=lambda x: str(x))
-                if re.search("fan" + '[0-9]', fan)
-                if miner_stats['STATS'][1][fan] != 0
-            ]
+                # Get fan speeds
+                self.fan_speeds = [
+                    miner_stats['STATS'][1][fan]
+                    for fan in sorted(miner_stats['STATS'][1].keys(),
+                                    key=lambda x: str(x))
+                    if re.search("fan" + '[0-9]', fan)
+                    if miner_stats['STATS'][1][fan] != 0
+                ]
+                # Get the temperatures of the miner according to miner's model
+                self.temperatures = [
+                    int(miner_stats['STATS'][1][temp])
+                    for temp in sorted(miner_stats['STATS'][1].keys(),
+                                    key=lambda x: str(x))
+                    if re.search(
+                        MODELS.get(self.model_id).get('temp_keys') + '[0-9]', temp)
+                    if miner_stats['STATS'][1][temp] != 0
+                ]
+                # Get uptime
+                self.uptime = str(timedelta(seconds=miner_stats['STATS'][1]['Elapsed']))
+            
 
             # Get GH/S 5s
             try:
                 if 'GHS 5s' in miner_stats['STATS'][1] :
                     self.hash_rate_ghs5s = float(str(miner_stats['STATS'][1]['GHS 5s']))
                 else:
-                    miner_summary = get_summary(self.ip)
                     self.hash_rate_ghs5s = float(miner_summary['SUMMARY'][0]['MHS 5s'])/1000
             except Exception as e:
-                miner_summary = get_summary(self.ip)
                 self.hash_rate_ghs5s = float(
                     str(miner_summary['SUMMARY'][0]['GHS 5s']))
 
@@ -138,15 +161,13 @@ class ASIC_ANTMINER(BaseMiner):
             # Get HW Errors
             try:
                 # Probably the miner is an Antminer E3 or S17
-                miner_summary = get_summary(self.ip)
                 self.hw_error_rate = miner_summary['SUMMARY'][0]['Device Hardware%']
             except Exception as e:
                 # self.hw_error_rate = miner_stats['STATS'][1]['Device Hardware%']
                 # this seems to work
                 self.hw_error_rate = 0
 
-            # Get uptime
-            self.uptime = str(timedelta(seconds=miner_stats['STATS'][1]['Elapsed']))
+            
 
             # Flash error messages
             if Xs > 0:

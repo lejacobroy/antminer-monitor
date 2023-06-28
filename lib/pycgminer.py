@@ -121,7 +121,37 @@ def get_chains(ip):
     output.update({"IP": ip})
     return dict(output)
 
+def get_config(ip):
+    cgminer = CgminerAPI(host=ip)
+    output = cgminer.config()
+    output.update({"IP": ip})
+    return dict(output)
+
+def get_fans(ip):
+    cgminer = CgminerAPI(host=ip)
+    output = cgminer.fans()
+    output.update({"IP": ip})
+    return dict(output)
+
+def get_temps(ip):
+    cgminer = CgminerAPI(host=ip)
+    output = cgminer.temps()
+    output.update({"IP": ip})
+    return dict(output)
+
+
+
 if __name__ == '__main__':
     S9 = CgminerAPI(host='10.66.10.63')
-    print(S9.lcd())
+    """ print("asccount", S9.asccount())
+    print("asc", S9.asc())
+    print("config", S9.config())
+    print("fans", S9.fans())
+    print("tempctrl", S9.tempctrl())
+    print("temps", S9.temps())
+    print("tunerstatuts", S9.tunerstatus()) """
+    print("stats", S9.stats())
+    print("summary", S9.summary())
+    print("version", S9.version())
+    print("info", S9.info())
 

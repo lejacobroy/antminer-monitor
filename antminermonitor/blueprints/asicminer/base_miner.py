@@ -3,7 +3,7 @@ class BaseMiner:
         self.id = miner.id
         self.ip = miner.ip
         self.model_id = miner.model_id
-        #self.os = miner.os
+        self.os = ""
         self.remarks = miner.remarks
         self.is_inactive = False
         self.worker = ""

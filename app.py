@@ -37,7 +37,7 @@ def create_db():
         print("[INFO] Database already exists.")
     else:
         print("[INFO] Database successfully created.")
-        create_admin
+        create_admin()
 
 
 #@cli.command()

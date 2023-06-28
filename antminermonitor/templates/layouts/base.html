@@ -4,7 +4,6 @@
 <head>
     {% block head_meta -%}
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
           content="{% block meta_description %}{% endblock %}">
@@ -15,6 +14,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/menu.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/genericons/3.0.3/genericons.css" />
+   <script type="text/js">
+    function countdown(remaining) {
+        if(remaining === 0)
+            location.reload(true);
+        else {
+            document.getElementById('countdown').innerHTML = 'Refresh in: ' + remaining + ' sec';
+            setTimeout(function(){ countdown(remaining - 1); }, 1000);
+        }
+    }
+    window.onload = function() {countdown(120)};
+    
+   </script>
     {% endblock head_css -%}
     {% block head -%}
     {% endblock head -%}

@@ -25,7 +25,7 @@ cryptocurrency, crypto, miner, mine, mining
                   <div>
                       <input required type="text" name="ip" pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" title="Please add a valid IP address (eg. xxx.xxx.xxx.xxx)" placeholder="xxx.xxx.xxx.xxx">
                   </div>
-                  <div>
+                  <!-- <div>
                       <label for="model_id">Model: </label>
                   </div>
                   <div>
@@ -35,7 +35,7 @@ cryptocurrency, crypto, miner, mine, mining
                               <option value="{{ id }}">{{ model.get('description') }}</option>
                           {%- endfor %}
                       </select>
-                  </div>
+                  </div> -->
                   <div>
                       <label for="remarks">Remarks: </label>
                   </div>
@@ -69,6 +69,12 @@ cryptocurrency, crypto, miner, mine, mining
                     </div>
                     <div>
                         <input required type="number" name="end_ip"  min="1" max="255" title="Accepted value: 1-255">
+                    </div>
+                    <div>
+                        <label for="remarks">Remarks: </label>
+                    </div>
+                    <div>
+                        <input type="text" name="remarks">
                     </div>
                     <p><input type="submit" value="Discover"></p>
                 </div>
@@ -174,8 +180,3 @@ cryptocurrency, crypto, miner, mine, mining
     </table>
 </fieldset>
 {% endblock %}
-
-{% block tail_js -%}
-{{ super() -}}
-    <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
-{% endblock -%}
